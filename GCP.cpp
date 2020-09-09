@@ -145,19 +145,19 @@ void findmove() {
 	int tmp;
 	int count = 1, tabu_count = 1;//相同增量值计数
 	int c_color;//当前结点颜色
-	int* h_color;//邻接颜色表行首指针
+	int* h_ptr;//邻接颜色表行首指针
 	int* h_tabu;//禁忌表行首指针
-	int c_color_table;//当前结点颜色表的值
+	int c_color_val;//当前结点颜色表的值
 	int A = Best_f - f;//冲突值差量
 	for (int i = 0; i < N; i++) {
 		c_color = sol[i];
-		h_color = Adjacent_Color_Table[i];
-		c_color_table = h_color[c_color];
-		if (h_color[c_color] > 0) {//对应邻接颜色表值大于零
+		h_ptr = Adjacent_Color_Table[i];
+		c_color_val = h_ptr[c_color];
+		if (h_ptr[c_color] > 0) {//对应邻接颜色表值大于零
 			h_tabu = TabuTenure[i];
 			for (int j = 0; j < K; j++) {
 				if (c_color != j) {
-					tmp = h_color[j] - c_color_table;//要移动位置减当前颜色值
+					tmp = h_ptr[j] - c_color_val;//要移动位置减当前颜色值
 					if (h_tabu[j] <= iter) {//非禁忌移动
 						if (tmp <= delt) {
 							if (tmp < delt) {//小于直接赋值
@@ -220,15 +220,15 @@ void findmove() {
 void makemove() {
 	f = delt + f;
 	if (f < Best_f) Best_f = f;
-	int old_color = sol[node];
+	int original_color = sol[node];
+	TabuTenure[node][original_color] = iter + f + rand() % 10;
 	sol[node] = color;
-	TabuTenure[node][old_color] = iter + f + rand() % 10;
-	int* h_graph = g[node];
 	int num_edge = v_edge[node];
+	int* h_ptr = g[node];
 	int tmp;
 	for (int i = 0; i < num_edge; i++) {//更新邻接颜色表
-		tmp = h_graph[i];
-		Adjacent_Color_Table[tmp][old_color]--;
+		tmp = h_ptr[i];
+		Adjacent_Color_Table[tmp][original_color]--;
 		Adjacent_Color_Table[tmp][color]++;
 	}
 }
@@ -236,13 +236,13 @@ void makemove() {
 //禁忌搜索
 void tabusearch() {
 	read_file();
-	int numofcolor;
+	int colors;
 	double start, end;
 	double elapsed_time;
-	while (cin >> numofcolor)
+	while (cin >> colors)
 	{
 		srand(clock());
-		initialization(numofcolor);
+		initialization(colors);
 		start = clock();
 		iter = 0;
 		while (f > 0) {
